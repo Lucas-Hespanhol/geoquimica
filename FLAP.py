@@ -43,13 +43,13 @@ p1.add_group([s4], "C6P1")
 p1.c_dbe("O2", 1, filename="O2_DBE1.png")
 
 # plota os parametros de maturidade
-p1.maturity(filenames=["m1.png", "m2.png", "m3.png", "m4.png"])
+p1.maturity(filenames=["m1.png", "m2.png", "m3.png", "m4.png", "m5.png"])
 
 # Plota os parametros de paleoambiente
 p1.paleoenvironment(filenames=["p1.png", "p2.png", "p3.png", "p4.png"])
 
 # Plota os parametros de biodegradacao
-p1.biodegradation(filenames=["b1.png", "b2.png", "b3.png", "b4.png"])
+p1.biodegradation(filenames=["b1.png", "b2.png", "b3.png", "b4.png", "b5.png"])
 
 # Plota o a distribuicao heteroatomica de uma amostra tem que mudar no plotpy
 #p1.heteroatomic_dist(s1, filename="ra.png")

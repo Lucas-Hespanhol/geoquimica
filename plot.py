@@ -7,6 +7,7 @@ from matplotlib import rcParams
 import matplotlib.colors
 import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import re
 rcParams.update({'figure.autolayout': True})
 
 class Plot:
@@ -87,6 +88,38 @@ class Plot:
         else:
             plt.savefig("output/" + filenames[3], dpi=400, bbox_inches="tight")
 
+        fig, ax = plt.subplots()
+        td = TernaryDiagram(['Ox', 'Nx', 'NOx'], ax=ax)
+
+        self.markers = ["o", "v", "^", "s", "h", "D"]
+        self.colors = ["red", "green", "blue", "yellow", "purple", "orange"]
+        pO = re.compile(r"O\d*")
+        pN = re.compile(r"N\d*")
+        pNO = re.compile(r"NO\d*")
+        for g in self.groups.keys():
+            points = []
+            for s in self.groups[g]:
+                sO = 0.0
+                sN = 0.0
+                sNO = 0.0
+                for hc in s.hclasses.keys():
+                    if pO.match(hc) is not None:
+                        sO += s.hclasses[hc].intensity/s.intensity
+                    if pN.match(hc) is not None:
+                        sN += s.hclasses[hc].intensity/s.intensity
+                    if pNO.match(hc) is not None:
+                        sNO += s.hclasses[hc].intensity/s.intensity
+                points.append((sO, sN, sNO))
+            td.scatter(points, color = self.colors.pop(), label=g)
+        ax.legend()
+
+        if filenames[4] is None:
+            plt.show()
+        else:
+            plt.savefig("output/" + filenames[4], dpi=400, bbox_inches="tight")
+                
+                
+
 
     def biodegradation(self, filenames=None):
         fig, ax = plt.subplots()
@@ -161,6 +194,23 @@ class Plot:
             plt.show()
         else:
             plt.savefig("output/" + filenames[3], dpi=400, bbox_inches="tight")
+
+        fig, ax = plt.subplots()
+        ms = copy(self.markers)
+        cs = copy(self.colors)
+        ax.set_xlabel("S/A mod. (%)")
+        ax.set_ylabel("Indice MA1")
+        for g in self.groups.keys():
+            y = [ a.biodegradation["Indice MA1"] for a in self.groups[g] ]
+            x = [ a.biodegradation["S/A mod. (%)"] for a in self.groups[g] ]
+            if np.nan not in x and np.nan not in y: 
+                ax.scatter(x, y, color=cs.pop(), marker=ms.pop(), label=g)
+        ax.legend()
+
+        if filenames[4] is None:
+            plt.show()
+        else:
+            plt.savefig("output/" + filenames[4], dpi=400, bbox_inches="tight")
 
     def paleoenvironment(self, filenames=None):
         fig, ax = plt.subplots()
@@ -269,7 +319,7 @@ class Plot:
             for s in self.groups[g]:
                 if hclass in s.hclasses:
                     if dbe in s.hclasses[hclass].dbes:
-                        cs.extend(s.hclasses[hclass].dbes.keys())
+                        cs.extend(s.hclasses[hclass].dbes[dbe].c_intensity.keys())
         cs = sorted(np.unique(cs))
         for g in self.groups.keys():
             for s in self.groups[g]:
@@ -288,7 +338,7 @@ class Plot:
         ax.set_title("Classe %s, DBE%.0f" %(hclass, dbe))
         ax.set_ylabel("Abundância Relativa (%)")
         ax.set_xlabel("Número de Carbonos")
-        ax.set_xticks(cs)
+        ax.set_xticks([c for c in cs if c % 2 ==0])
 
         if filename is None:
             plt.show()
